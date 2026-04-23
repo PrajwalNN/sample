@@ -1,0 +1,89 @@
+Devops
+
+Update system
+>> sudo apt update
+
+Install required tool
+>> sudo apt install -y gnupg software-properties-common curl
+
+Add HashiCorp GPG key
+>> curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+Add repository 
+>> echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+Update again 
+>> sudo apt update
+
+Install Vagrant
+>> sudo apt install vagrant
+
+>> vagrant --version
+
+>> mkdir jenkins-vagrant-lab
+>> cd jenkins-vagrant-lab
+>> vagrant init ubuntu/jammy64
+
+>> sudo apt install virtualbox
+>> VBoxManage --verison
+
+>> vagrant init
+>> vagrant up [don't do]
+
+VagrantFile Content
+
+vagrnat.configure("2")do |config|
+config.vm.box="ubuntu/jammy64"
+config.vm.provision "Shell", inline:<<-SHELL
+sudo apt update
+sudo apt install -y openjdk-17-jdk openssh-server
+sudo systemctl start ssh
+sudo systemctl enable ssh
+mkdir -p /home/vagrant/jenkins
+chmod 777 /home/vagrant/jenkins
+SHELL
+config.vm.define "masters" do |master|
+master.vm.hostname="master"
+master.vm.network "private_network",ip:"192.168.56.11"
+end
+config.vm.define "agent1" do |a|
+a.vm.hostname="agent1"
+a.vm.network "private_network",ip:"192.168.56.12"
+end
+end
+
+>> vagrant up
+>> vagrant status
+
+on new terminal
+>> vagrant ssh master
+
+on another terminal
+>> vagrant ssh agent1
+
+
+on master 
+install java jdk
+and install jenkins using jenkins website
+
+
+>> sudo systemctl enable jenkins
+>> sudo systemctl start jenkins
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
