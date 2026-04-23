@@ -1,0 +1,139 @@
+Full name - Prajwal N N
+username - prajwalnn
+password - u-know-it
+
+for knowing the password of any admin
+>> sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+
+Devops
+
+Update system
+>> sudo apt update
+
+Install required tool
+>> sudo apt install -y gnupg software-properties-common curl
+
+Add HashiCorp GPG key
+>> curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+Add repository 
+>> echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+Update again 
+>> sudo apt update
+
+Install Vagrant
+>> sudo apt install vagrant
+
+>> vagrant --version
+
+>> mkdir jenkins-vagrant-lab
+>> cd jenkins-vagrant-lab
+>> vagrant init ubuntu/jammy64
+
+>> sudo apt install virtualbox
+>> VBoxManage --version
+
+>> vagrant init
+>> vagrant up [don't do]
+
+VagrantFile Content
+vagrant.configure("2") do |config|
+
+  config.vm.box = "ubuntu/jammy64"
+
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo apt update
+    sudo apt install -y openjdk-17-jdk openssh-server
+
+sudo systemctl start ssh
+sudo systemctl enable ssh
+
+
+    mkdir -p /home/vagrant/jenkins
+    chmod 777 /home/vagrant/jenkins
+  SHELL
+
+  config.vm.define "master" do |master|
+    master.vm.hostname = "master"
+    master.vm.network "private_network", ip: "192.168.56.11"
+  end
+
+  config.vm.define "agent1" do |a|
+    a.vm.hostname = "agent1"
+    a.vm.network "private_network", ip: "192.168.56.12"
+  end
+
+end
+
+
+>> vagrant up
+>> vagrant status
+
+on new terminal
+>> vagrant ssh master
+
+on another terminal
+>> vagrant ssh agent1
+
+
+on master 
+install java jdk
+and install jenkins using jenkins website
+
+
+>> sudo systemctl enable jenkins
+>> sudo systemctl start jenkins
+
+
+after installing the jdk and jenkins in the master terminal and go to the 
+http://192.168.56.11:8080
+
+and install all plugins for jenkins and after installing go to the setting and click nodes section
+then create new node
+
+assign name and click the permenant clickbox and save
+
+now, at the Remote Root Directory, on master terminal 
+>> pwd
+paste the appeared present directory Remote Root Directory
+
+and under label column enter "agent1" then save
+
+now go to security section in settings section
+and select fixed in checkbox and enter 50000 then applya and save
+
+now click on the created node and copy the 
+Run from agent command line: (Unix) commands
+and paste in the master terminal
+then you will see connected at the end of the line
+
+create a new item under the agent1 name in the same jenkins acc
+and select pipeline and enter the grovvy script in the pipeline script
+
+pipeline {
+    agent { label 'agent1' }
+    stages {
+        stage('Test Agent') {
+            steps {
+                sh 'echo Running on agent'
+                sh 'hostname'
+            }
+        }
+    }
+}
+
+and save and build run
+the agent1 will run successfully 
+
+
+
+
+
+
+
+
+
+
+
